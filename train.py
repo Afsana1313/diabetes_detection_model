@@ -131,4 +131,4 @@ print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
 # pickle
 with open("pipeline.pkl","wb") as f:
-    pickle.dump(pipeline,f)
+    pickle.dump(best_model, f)

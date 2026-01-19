@@ -1,14 +1,36 @@
 import gradio as gr
-import numpy as np
+import pandas as pd
 import pickle
 #main logic
 with open("pipeline.pkl","rb") as f:
     model = pickle.load(f)
 
-def predict(*inputs):
-    input_array = np.array(inputs).reshape(1, -1)
-    prediction = model.predict(input_array)
-    return prediction[0]
+def predict(Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age):
+
+    BMI_Age_Risk = BMI * Age
+    Glucose_BMI = Glucose * BMI
+
+    data = pd.DataFrame([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI,
+                          DiabetesPedigreeFunction, Age, BMI_Age_Risk, Glucose_BMI]],
+                        columns=[
+                            "Pregnancies",
+                            "Glucose",
+                            "BloodPressure",
+                            "SkinThickness",
+                            "Insulin",
+                            "BMI",
+                            "DiabetesPedigreeFunction",
+                            "Age",
+                            "BMI_Age_Risk",
+                            "Glucose_BMI"
+                        ])
+
+    prediction = model.predict(data)[0]
+
+    return "Diabetic" if prediction == 1 else "Not Diabetic"
+    
+  
+
 
 interface = gr.Interface(
     fn=predict,
@@ -19,7 +41,8 @@ interface = gr.Interface(
         gr.Number(label="SkinThickness"),
         gr.Number(label="Insulin"),
         gr.Number(label="BMI"),
-        gr.Number(label="Age")
+        gr.Number(label="DiabetesPedigreeFunction"),
+          gr.Number(label="Age")
     ],
     outputs=gr.Textbox(label="Prediction"),
     title="ML Model Prediction App",
